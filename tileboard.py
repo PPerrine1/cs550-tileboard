@@ -4,6 +4,7 @@ import math
 
 from basicsearch_lib.board import Board
 
+
 class TileBoard(Board):
     def __init__(self, n, multiple_solutions=False, force_state=None,
                  verbose=False):
@@ -20,13 +21,13 @@ class TileBoard(Board):
 
         verbose is a boolean for turning on debugging
         """
-        
+
         self.verbose = verbose  # not debug state, up to you to use it
-        
-        self.boardsize = int(math.sqrt(n+1))
-        if math.sqrt(n+1) != self.boardsize:
+
+        self.boardsize = int(math.sqrt(n + 1))
+        if math.sqrt(n + 1) != self.boardsize:
             raise ValueError("Bad board size\n" +
-                "Must be one less than an odd perfect square 8, 24, ...")
+                             "Must be one less than an odd perfect square 8, 24, ...")
 
         # initialize parent
         super().__init__(self.boardsize, self.boardsize)
@@ -36,12 +37,48 @@ class TileBoard(Board):
         # If multiple_solutions is true, None can be anywhere:
         # [(None,1,2,3,...), (1,None,2,3,...), (1,2,None,3,...)]
         # Otherwise, must be the last square:  [(1,2,3,...,None)]
+        self.goals = []
+        if multiple_solutions:
+            for x in range(n):
+                sol = []
+                for y in range(n):
+                    if x == y:
+                        sol.append(None)
+                    else:
+                        sol.append(y)
+                self.goals.append(tuple(sol))
+        else:
+            sol = list(range(1, n))
+            sol.append(None)
+            self.goals.append(tuple(sol))
 
-        # todo:  Determine inital state and make sure that it is solvable
+        # todo:  Determine initial state and make sure that it is solvable
+        tmp_board = []
+
+        if not force_state:
+            tmp_board = list(range(1, n+1))
+            tmp_board.append(None)
+            random.shuffle(tmp_board)
+
+        if force_state:
+            if self.solvable(force_state):
+                tmp_board = force_state
+            else:
+                raise ValueError("Board not solvable.")
+
+        while not force_state and not self.solvable(tmp_board):
+            tmp_board = list(range(1, n + 1))
+            tmp_board.append(None)
+            random.shuffle(tmp_board)
 
         # todo:  Populate the board using self.place
         #        It would be wise to track the empty square location as well
         #        as it will make action generation easier
+
+        print(tmp_board)
+        for x in range(self.boardsize):
+            for y in range(self.boardsize):
+                self.place(x, y, tmp_board.pop(0))
 
     def solvable(self, tiles, verbose=False):
         """solvable - Determines if a puzzle is solvable
@@ -79,9 +116,9 @@ class TileBoard(Board):
         # Make life easy, remove None
         reduced = [t for t in tiles if t is not None]
         # Loop over all but last (no tile after it)
-        for idx in range(len(reduced)-1):
+        for idx in range(len(reduced) - 1):
             value = reduced[idx]
-            after = reduced[idx+1:]  # Remaining tiles
+            after = reduced[idx + 1:]  # Remaining tiles
             smaller = [x for x in after if x < value]
             numtiles = len(smaller)
             inversionorder = inversionorder + numtiles
@@ -94,22 +131,31 @@ class TileBoard(Board):
             if verbose:
                 print("Even # rows, adding for position of blank")
             inversionorder = inversionorder + \
-                math.floor(tiles.index(None) / self.boardsize)+1
+                             math.floor(tiles.index(None) / self.boardsize) + 1
 
         solvable = inversionorder % 2 == 0  # Solvable if even
         return solvable
-                                
+
     def __hash__(self):
         "__hash__ - Hash the board state"
-        
+
         # Convert state to a tuple and hash
         return hash(self.state_tuple())
-    
+
     def __eq__(self, other):
         "__eq__ - Check if objects equal:  a == b"
 
         # todo:  Determine if two board configurations are equivalent
-        raise NotImplementedError("Check ==")
+        if self.get_rows() == other.get_rows():
+            if self.get_cols() == other.get_cols():
+                for x in range(self.boardsize):
+                    for y in range(self.boardsize):
+                        if self.get(x, y) != other.get(x, y):
+                            break
+                        if x==y and x == self.boardsize-1:
+                            return True
+        return False
+        # raise NotImplementedError("Check ==")
 
     def state_tuple(self):
         "state_tuple - Return board state as a single tuple"
@@ -122,14 +168,12 @@ class TileBoard(Board):
 
         raise NotImplementedError("Return list of valid actions")
 
-            
     def move(self, offset):
         "move - Move the empty space by [delta_row, delta_col] and return new board"
 
         # Hint:  Be sure to use deepcopy
         raise NotImplementedError("Return new TileBoard with action applied")
 
-    
     def solved(self):
         "solved - Is the puzzle solved?  Returns boolean"
 
