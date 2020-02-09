@@ -75,7 +75,6 @@ class TileBoard(Board):
         #        It would be wise to track the empty square location as well
         #        as it will make action generation easier
 
-        print(tmp_board)
         for x in range(self.boardsize):
             for y in range(self.boardsize):
                 self.place(x, y, tmp_board.pop(0))
@@ -159,9 +158,16 @@ class TileBoard(Board):
 
     def state_tuple(self):
         "state_tuple - Return board state as a single tuple"
+
+        board_tuple = []
+        for x in lis: l.extend(x)
+
+        print(tuple(l))
+
         board_tuple = self.board
         for x in range(self.boardsize):
             rtuple = tuple(board_tuple[x])
+            board_tuple.append(rtuple)
         board_tuple = tuple(board_tuple)
 
         return board_tuple
@@ -170,11 +176,42 @@ class TileBoard(Board):
 
     def get_actions(self):
         "Return row column offsets of where the empty tile can be moved"
-        poss_actions = [([-1, 0], [1, 0], [0, -1], [0, 1])]
-        raise NotImplementedError("Return list of valid actions")
+        poss_actions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        print(self.state_tuple())
+        empty_t = [x for x in range(len(self.board)) if self.board[x] is None][0]
+        print(empty_t)
+
+
+        if empty_t % self.boardsize == 0:
+            # tile is left
+            poss_actions.remove([0, 1])
+        if empty_t % self.boardsize == self.boardsize - 1:
+            # tile is right
+            poss_actions.remove([0, -1])
+        if empty_t < self.boardsize:
+            # tile is top
+            poss_actions.remove([-1, 0])
+        if empty_t > math.pow(self.boardsize, 2) - self.boardsize:
+            # tile is bottom
+            poss_actions.remove([1, 0])
+
+        # if not edge, can go [0,1],[0,-1],[1,0],[-1,0]
+        # if left edge and not corner, can go [0,1],[1,0],[-1,0]
+        # if right edge and not corner, can go [0,-1],[1,0],[-1,0]
+        # if top edge and not corner, can go [0,-1],[0,1],[1,0]
+        # if bottom edge and not corner, can go [0,-1],[0,1],[-1,0]
+        # top-right corner [0,-1],[1,0]
+        # top-left corner [0,1],[1,0]
+        # bottom-right corner [0,-1],[-1,0]
+        # bottom-left corner [0,1],[-1,0]
+
+        # might be easier to start off with poss_actions and then remove the ones that aren't viable :-)
+        return poss_actions
+        # raise NotImplementedError("Return list of valid actions")
 
     def move(self, offset):
         "move - Move the empty space by [delta_row, delta_col] and return new board"
+        new_b = copy.deepcopy(self.board)
 
         # Hint:  Be sure to use deepcopy
         raise NotImplementedError("Return new TileBoard with action applied")
