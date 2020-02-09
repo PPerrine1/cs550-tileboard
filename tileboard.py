@@ -56,7 +56,7 @@ class TileBoard(Board):
         tmp_board = []
 
         if not force_state:
-            tmp_board = list(range(1, n+1))
+            tmp_board = list(range(1, n + 1))
             tmp_board.append(None)
             random.shuffle(tmp_board)
 
@@ -152,20 +152,25 @@ class TileBoard(Board):
                     for y in range(self.boardsize):
                         if self.get(x, y) != other.get(x, y):
                             break
-                        if x==y and x == self.boardsize-1:
+                        if x == y and x == self.boardsize - 1:
                             return True
         return False
         # raise NotImplementedError("Check ==")
 
     def state_tuple(self):
         "state_tuple - Return board state as a single tuple"
+        board_tuple = self.board
+        for x in range(self.boardsize):
+            rtuple = tuple(board_tuple[x])
+        board_tuple = tuple(board_tuple)
 
-        raise NotImplementedError(
-            "You must create a tuple based on the board state")
+        return board_tuple
+        # raise NotImplementedError(
+        #     "You must create a tuple based on the board state")
 
     def get_actions(self):
         "Return row column offsets of where the empty tile can be moved"
-
+        poss_actions = [([-1, 0], [1, 0], [0, -1], [0, 1])]
         raise NotImplementedError("Return list of valid actions")
 
     def move(self, offset):
@@ -176,5 +181,8 @@ class TileBoard(Board):
 
     def solved(self):
         "solved - Is the puzzle solved?  Returns boolean"
-
-        raise NotImplementedError("Puzzle in solved state?")
+        for x in range(len(self.goals)):
+            if self.state_tuple() == self.goals[x]:
+                return True
+        return False
+        # raise NotImplementedError("Puzzle in solved state?")

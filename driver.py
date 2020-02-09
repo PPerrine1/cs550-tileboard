@@ -16,36 +16,36 @@ def driver():
     b = TileBoard(size, multiple_solutions=True)
     print(b)
 
-    # solved = b.solved()
-    #
-    # while not solved:
-    #     print(b)        # show the board
-    #
-    #     # Generate possible actions and corresponding labels a, b, c
-    #     actions = b.get_actions()
-    #     action_labels = [chr(ord('a')+idx) for idx in range(len(actions))]
-    #
-    #     # Print list of actions, end="" means no newline
-    #     print("Valid actions (delta row, delta col): ")
-    #     for (label, move) in zip(action_labels, actions):
-    #         print("{}: {}.  ".format(label, move), end="")
-    #     print()
-    #
-    #     # Let user select a valid choice
-    #     useraction = None
-    #     prompt = "move choice:  "
-    #     while useraction not in action_labels:
-    #         useraction = input(prompt)
-    #         prompt = "bad choice, try again: "
-    #     print(useraction)
-    #
-    #     # Convert choice to index and execute move
-    #     actionidx = ord(useraction) - ord('a')
-    #     b = b.move(actions[actionidx])
-    #
-    #     solved = b.solved()  # all done?
-    #
-    # print("Congratulations, you did it!")
+    solved = b.solved()
+
+    while not solved:
+        print(b)        # show the board
+
+        # Generate possible actions and corresponding labels a, b, c
+        actions = b.get_actions()
+        action_labels = [chr(ord('a')+idx) for idx in range(len(actions))]
+
+        # Print list of actions, end="" means no newline
+        print("Valid actions (delta row, delta col): ")
+        for (label, move) in zip(action_labels, actions):
+            print("{}: {}.  ".format(label, move), end="")
+        print()
+
+        # Let user select a valid choice
+        useraction = None
+        prompt = "move choice:  "
+        while useraction not in action_labels:
+            useraction = input(prompt)
+            prompt = "bad choice, try again: "
+        print(useraction)
+
+        # Convert choice to index and execute move
+        actionidx = ord(useraction) - ord('a')
+        b = b.move(actions[actionidx])
+
+        solved = b.solved()  # all done?
+
+    print("Congratulations, you did it!")
         
         
         
