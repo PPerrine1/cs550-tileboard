@@ -216,13 +216,13 @@ class TileBoard(Board):
         """move - Move the empty space by [delta_row, delta_col] and return new board"""
 
         # Create a deep copy of the current board
-        new_b = copy.deepcopy(self.board)
+        new_b = copy.deepcopy(self)
 
         # Search for empty tile's coordinates (NOT index) using the deep copy
         found = False
-        for x in range(len(new_b)):
-            for y in range(len(new_b[x])):
-                if new_b[x][y] is None:
+        for x in range(len(new_b.board)):
+            for y in range(len(new_b.board[x])):
+                if new_b.board[x][y] is None:
                     empty_t = [x, y]
                     found = True
                     break
@@ -232,15 +232,15 @@ class TileBoard(Board):
         # Apply move offset accordingly
         if offset[0] != 0:
             # Move up or down
-            new_b[empty_t[0]][empty_t[1]] = new_b[empty_t[0] + offset[0]][empty_t[1]]
-            new_b[empty_t[0] + offset[0]][empty_t[1]] = None
+            new_b.board[empty_t[0]][empty_t[1]] = new_b.board[empty_t[0] + offset[0]][empty_t[1]]
+            new_b.board[empty_t[0] + offset[0]][empty_t[1]] = None
         elif offset[1] != 0:
             # Move left or right
-            new_b[empty_t[0]][empty_t[1]] = new_b[empty_t[0]][empty_t[1] + offset[1]]
-            new_b[empty_t[0]][empty_t[1] + offset[1]] = None
+            new_b.board[empty_t[0]][empty_t[1]] = new_b.board[empty_t[0]][empty_t[1] + offset[1]]
+            new_b.board[empty_t[0]][empty_t[1] + offset[1]] = None
 
-        # Assign our shifted board as our current board
-        self.board = new_b
+        # Return our shifted board to be assigned
+        return new_b
 
     def solved(self):
         """solved - Is the puzzle solved?  Returns boolean"""
@@ -251,5 +251,3 @@ class TileBoard(Board):
             if self.state_tuple() == self.goals[x]:
                 return True
         return False
-
-        
