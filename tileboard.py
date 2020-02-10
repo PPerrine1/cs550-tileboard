@@ -39,16 +39,15 @@ class TileBoard(Board):
         # Otherwise, must be the last square:  [(1,2,3,...,None)]
         self.goals = []
         if multiple_solutions:
-            for x in range(n):
+            for x in range(1, n + 1):
                 sol = []
-                for y in range(n):
+                for y in range(1, n + 1):
                     if x == y:
                         sol.append(None)
-                    else:
-                        sol.append(y)
+                    sol.append(y)
                 self.goals.append(tuple(sol))
         else:
-            sol = list(range(1, n))
+            sol = list(range(1, n + 1))
             sol.append(None)
             self.goals.append(tuple(sol))
 
@@ -136,13 +135,13 @@ class TileBoard(Board):
         return solvable
 
     def __hash__(self):
-        "__hash__ - Hash the board state"
+        """__hash__ - Hash the board state"""
 
         # Convert state to a tuple and hash
         return hash(self.state_tuple())
 
     def __eq__(self, other):
-        "__eq__ - Check if objects equal:  a == b"
+        """__eq__ - Check if objects equal:  a == b"""
 
         # todo:  Determine if two board configurations are equivalent
         if self.get_rows() == other.get_rows():
@@ -157,67 +156,65 @@ class TileBoard(Board):
         # raise NotImplementedError("Check ==")
 
     def state_tuple(self):
-        "state_tuple - Return board state as a single tuple"
+        """state_tuple - Return board state as a single tuple"""
 
         board_tuple = []
-        for x in lis: l.extend(x)
+        for x in self.board: board_tuple.extend(x)
 
-        print(tuple(l))
-
-        board_tuple = self.board
-        for x in range(self.boardsize):
-            rtuple = tuple(board_tuple[x])
-            board_tuple.append(rtuple)
-        board_tuple = tuple(board_tuple)
-
-        return board_tuple
+        return tuple(board_tuple)
         # raise NotImplementedError(
         #     "You must create a tuple based on the board state")
 
     def get_actions(self):
-        "Return row column offsets of where the empty tile can be moved"
+        """Return row column offsets of where the empty tile can be moved"""
         poss_actions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
-        print(self.state_tuple())
-        empty_t = [x for x in range(len(self.board)) if self.board[x] is None][0]
-        print(empty_t)
+        empty_t = self.state_tuple().index(None)
 
-
-        if empty_t % self.boardsize == 0:
+        if (empty_t % self.boardsize) == 0:
             # tile is left
-            poss_actions.remove([0, 1])
-        if empty_t % self.boardsize == self.boardsize - 1:
-            # tile is right
             poss_actions.remove([0, -1])
+        if (empty_t % self.boardsize) == self.boardsize - 1:
+            # tile is right
+            poss_actions.remove([0, 1])
         if empty_t < self.boardsize:
             # tile is top
             poss_actions.remove([-1, 0])
-        if empty_t > math.pow(self.boardsize, 2) - self.boardsize:
+        if empty_t >= math.pow(self.boardsize, 2) - self.boardsize:
             # tile is bottom
             poss_actions.remove([1, 0])
+        # up: [-1,0], down: [1,0]
+        # left: [0,-1], right: [0,1]
 
-        # if not edge, can go [0,1],[0,-1],[1,0],[-1,0]
-        # if left edge and not corner, can go [0,1],[1,0],[-1,0]
-        # if right edge and not corner, can go [0,-1],[1,0],[-1,0]
-        # if top edge and not corner, can go [0,-1],[0,1],[1,0]
-        # if bottom edge and not corner, can go [0,-1],[0,1],[-1,0]
-        # top-right corner [0,-1],[1,0]
-        # top-left corner [0,1],[1,0]
-        # bottom-right corner [0,-1],[-1,0]
-        # bottom-left corner [0,1],[-1,0]
-
-        # might be easier to start off with poss_actions and then remove the ones that aren't viable :-)
         return poss_actions
         # raise NotImplementedError("Return list of valid actions")
 
     def move(self, offset):
-        "move - Move the empty space by [delta_row, delta_col] and return new board"
+        """move - Move the empty space by [delta_row, delta_col] and return new board"""
         new_b = copy.deepcopy(self.board)
+        found = False
+        for x in range(len(new_b)):
+            for y in range(len(new_b[x])):
+                if new_b[x][y] is None:
+                    empty_t = [x, y]
+                    found = True
+                    break
+            if found:
+                break
+        if offset[0] != 0:
+            # up or down
+            new_b[empty_t[0]][empty_t[1]] = new_b[empty_t[0] + offset[0]][empty_t[1]]
+            new_b[empty_t[0] + offset[0]][empty_t[1]] = None
+        elif offset[1] != 0:
+            # left or right
+            new_b[empty_t[0]][empty_t[1]] = new_b[empty_t[0]][empty_t[1] + offset[1]]
+            new_b[empty_t[0]][empty_t[1] + offset[1]] = None
 
+        self.board = new_b
         # Hint:  Be sure to use deepcopy
-        raise NotImplementedError("Return new TileBoard with action applied")
+        # raise NotImplementedError("Return new TileBoard with action applied")
 
     def solved(self):
-        "solved - Is the puzzle solved?  Returns boolean"
+        """solved - Is the puzzle solved?  Returns boolean"""
         for x in range(len(self.goals)):
             if self.state_tuple() == self.goals[x]:
                 return True

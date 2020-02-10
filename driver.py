@@ -8,7 +8,7 @@ from tileboard import TileBoard
 
 
 def driver():
-    size = 8  # N puzzle
+    size = 3  # N puzzle
     
     # Check
     
@@ -41,7 +41,7 @@ def driver():
 
         # Convert choice to index and execute move
         actionidx = ord(useraction) - ord('a')
-        b = b.move(actions[actionidx])
+        b.move(actions[actionidx])
 
         solved = b.solved()  # all done?
 
